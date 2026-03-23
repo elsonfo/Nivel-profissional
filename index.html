@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simulador profissional de Word para assistentes administrativos">
+  <title>Word Office Challenge - Simulador Profissional</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0066cc;
+      --secondary: #00a3ff;
+      --success: #00b386;
+      --warning: #ff9800;
+      --danger: #ff4444;
+      --dark: #1a1a1a;
+      --light: #f5f7fa;
+      --border: #e0e0e0;
+      --text: #333;
+      --bg: #ffffff;
+      --bg-secondary: #f9f9f9;
+    }
+
+    body.dark-mode {
+      --text: #e0e0e0;
+      --bg: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --border: #444;
+      --light: #333;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .ribbon {
+      background: white;
+      padding: 15px 20px;
+      display: flex;
+      gap: 30px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    body.dark-mode .ribbon {
+      background: var(--bg-secondary);
+    }
+
+    .group {
+      display: flex;
+      gap: 8px;
+      border-right: 1px solid var(--border);
+      padding-right: 30px;
+    }
+
+    .group:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.3s ease;
+      min-width: 45px;
+    }
+
+    body.dark-mode button {
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+
+    button:hover {
+      background: var(--light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    button:active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .texto-base {
+      background: #fffde7;
+      border-left: 4px solid #fbc02d;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      line-height: 1.8;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .editor {
+      background: white;
+      padding: 25px;
+      min-height: 300px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1.8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      max-height: 500px;
+    }
+
+    body.dark-mode .editor {
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+
+    .editor:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 2px 12px rgba(0, 102, 204, 0.2);
+    }
+
+    .panel {
+      background: white;
+      padding: 25px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .panel {
+      background: var(--bg-secondary);
+    }
+
+    .missao {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .box {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      border-left: 4px solid;
+    }
+
+    .dica {
+      background: #e3f2fd;
+      border-left-color: #2196f3;
+      font-size: 14px;
+    }
+
+    .criterio {
+      background: #f1f8e9;
+      border-left-color: #4caf50;
+      font-size: 14px;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+      padding: 20px;
+      background: var(--light);
+      border-radius: 8px;
+    }
+
+    body.dark-mode .status {
+      background: var(--bg-secondary);
+    }
+
+    .status-item {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .status-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .btn-validar {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-validar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .feedback {
+      margin-top: 15px;
+      padding: 12px 15px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid var(--success);
+    }
+
+    .feedback.error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid var(--danger);
+    }
+
+    .history {
+      margin-top: 25px;
+      background: var(--light);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .history h4 {
+      margin-bottom: 15px;
+      color: var(--dark);
+    }
+
+    .historico-item {
+      padding: 8px;
+      margin: 5px 0;
+      background: white;
+      border-radius: 4px;
+      font-size: 14px;
+      border-left: 3px solid var(--primary);
+    }
+
+    .historico-empty {
+      color: #999;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .achievements-section {
+      background: var(--bg);
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .achievements-section {
+      background: var(--bg-secondary);
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .achievement {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: var(--light);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    body.dark-mode .achievement {
+      background: var(--bg);
+    }
+
+    .achievement.unlocked {
+      background: rgba(0, 179, 134, 0.2);
+      border-color: var(--success);
+      box-shadow: 0 0 12px rgba(0, 179, 134, 0.3);
+    }
+
+    .achievement-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .achievement-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .progress-section {
+      background: var(--bg);
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .progress-section {
+      background: var(--bg-secondary);
+    }
+
+    #progressChart {
+      max-height: 300px;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+      }
+    }
+      header h1 {
+        font-size: 22px;
+      }
+
+      .ribbon {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .group {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 15px;
+      }
+
+      .group:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .editor {
+        min-height: 200px;
+        max-height: 300px;
+      }
+
+      .status {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>📊 Word Office Challenge</h1>
+  <p>Simulador Profissional de Processamento de Texto</p>
+</header>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Alternar modo claro/escuro" aria-label="Modo claro/escuro">
+  🌙
+</button>
+<nav class="ribbon" role="toolbar" aria-label="Ferramentas de formatação">
+  <div class="group" aria-label="Estilos de texto">
+    <button onclick="format('bold')" title="Negrito (Ctrl+B)" aria-pressed="false">
+      <strong>B</strong>
+    </button>
+    <button onclick="format('italic')" title="Itálico (Ctrl+I)" aria-pressed="false">
+      <em>I</em>
+    </button>
+    <button onclick="format('underline')" title="Sublinhado (Ctrl+U)" aria-pressed="false">
+      <u>U</u>
+    </button>
+  </div>
+
+  <div class="group" aria-label="Listas">
+    <button onclick="lista()" title="Lista com marcadores">
+      • Lista
+    </button>
+    <button onclick="listaNum()" title="Lista numerada">
+      1. Lista
+    </button>
+  </div>
+
+  <div class="group" aria-label="Alinhamento">
+    <button onclick="alignText('left')" title="Alinhar à esquerda">
+      ⬅ Esq
+    </button>
+    <button onclick="alignText('center')" title="Centralizar">
+      ⬜ Cent
+    </button>
+    <button onclick="alignText('right')" title="Alinhar à direita">
+      Dir ➡
+    </button>
+    <button onclick="justifyText()" title="Justificar">
+      ☰ Just
+    </button>
+  </div>
+</nav>
+
+<main class="container">
+  <section id="textoBase" class="texto-base" aria-label="Texto base para o desafio"></section>
+
+  <div id="editor" class="editor" contenteditable="true" spellcheck="true" 
+       aria-label="Editor de texto - Digite ou copie o texto aqui" 
+       role="textbox"></div>
+
+  <section class="panel">
+    <div class="missao" id="missao" role="status"></div>
+
+    <div id="dica" class="box dica" aria-live="polite"></div>
+    <div id="criterio" class="box criterio" aria-live="polite"></div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+
+    <div class="status">
+      <div class="status-item">
+        <div class="status-label">Tempo</div>
+        <div class="status-value" id="tempo">0<span style="font-size: 14px;">s</span></div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Pontuação</div>
+        <div class="status-value" id="score">0</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Progresso</div>
+        <div class="status-value" id="nivel">1/10</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: var(--light); border-radius: 8px;">
+      <label for="nomeAluno" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">📝 Nome do Aluno</label>
+      <input type="text" id="nomeAluno" placeholder="Digite seu nome aqui" 
+             style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;">
+    </div>
+
+    <button class="btn-validar" onclick="validar()" aria-label="Validar desafio atual">
+      ✔ Validar Resposta
+    </button>
+
+    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+      <button class="btn-validar" onclick="exportarRelatorioPDF()" style="background: linear-gradient(135deg, #ff9800 0%, #ffb84d 100%); font-size: 14px; padding: 10px 15px; flex: 1; min-width: 150px;">
+        📄 Exportar Relatório
+      </button>
+      <button class="btn-validar" onclick="exportarDados()" style="background: linear-gradient(135deg, #00b386 0%, #00d9a3 100%); font-size: 14px; padding: 10px 15px; flex: 1; min-width: 150px;">
+        💾 Exportar Dados
+      </button>
+    </div>
+
+    <div id="feedback" class="feedback" role="alert" aria-live="assertive"></div>
+
+    <article class="history">
+      <h4>📊 Histórico de Tentativas</h4>
+      <div id="historico" aria-live="polite"></div>
+    </article>
+  </section>
+</main>
+
+<section class="container">
+  <div class="achievements-section">
+    <h3>🏆 Achievements Desbloqueados</h3>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
+  <div class="progress-section">
+    <h3>📈 Evolução do Seu Progresso</h3>
+    <canvas id="progressChart"></canvas>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
