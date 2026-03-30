@@ -492,16 +492,16 @@
   </div>
 
   <div class="group" aria-label="Alinhamento">
-    <button onclick="alignText('left')" title="Alinhar à esquerda">
+    <button onclick="alignText('left')" title="Alinhar à esquerda (Ctrl+L)">
       ⬅ Esq
     </button>
-    <button onclick="alignText('center')" title="Centralizar">
-      ⬜ Cent
+    <button onclick="alignText('center')" title="Centralizar (Ctrl+E)">
+      ⬌ Cent
     </button>
-    <button onclick="alignText('right')" title="Alinhar à direita">
+    <button onclick="alignText('right')" title="Alinhar à direita (Ctrl+R)">
       Dir ➡
     </button>
-    <button onclick="justifyText()" title="Justificar">
+    <button onclick="justifyText()" title="Justificar (Ctrl+J)">
       ☰ Just
     </button>
   </div>
@@ -550,7 +550,7 @@
     </button>
 
     <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-      <button class="btn-validar" onclick="exportarRelatorioPDF()" style="background: linear-gradient(135deg, #ff9800 0%, #ffb84d 100%); font-size: 14px; padding: 10px 15px; flex: 1; min-width: 150px;">
+      <button id="btnExportarRelatorio" class="btn-validar" onclick="exportarRelatorioPDF()" style="background: linear-gradient(135deg, #ff9800 0%, #ffb84d 100%); font-size: 14px; padding: 10px 15px; flex: 1; min-width: 150px; display: none;">
         📄 Exportar Relatório
       </button>
       <button class="btn-validar" onclick="exportarDados()" style="background: linear-gradient(135deg, #00b386 0%, #00d9a3 100%); font-size: 14px; padding: 10px 15px; flex: 1; min-width: 150px;">

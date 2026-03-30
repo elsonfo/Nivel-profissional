@@ -272,19 +272,103 @@ styleAnimation.textContent = `
 `;
 document.head.appendChild(styleAnimation);
 
-const textoBase = `O assistente administrativo exerce um papel estratégico dentro das organizações modernas, sendo responsável por apoiar as atividades operacionais e garantir o fluxo adequado das informações.
+const textoBase = `<h1>Assistente Administrativo: Competências Essenciais</h1>
 
-Entre suas principais funções estão a organização de documentos, controle de processos internos, atendimento a clientes e suporte às equipes de gestão. Para isso, é essencial que o profissional domine ferramentas digitais, especialmente editores de texto como o Microsoft Word.
+<h2>Introdução ao Papel Profissional</h2>
 
-A produção de documentos bem estruturados, claros e padronizados contribui diretamente para a eficiência organizacional e para a qualidade da comunicação empresarial.
+<p>O assistente administrativo exerce um papel estratégico dentro das organizações modernas, sendo responsável por apoiar as atividades operacionais e garantir o fluxo adequado das informações.</p>
 
-Além disso, o uso adequado de recursos como formatação, alinhamento, listas e revisão textual permite que os documentos transmitam profissionalismo e credibilidade.
+<p>Entre suas principais funções estão:</p>
+<ul>
+<li>Organização de documentos</li>
+<li>Controle de processos internos</li>
+<li>Atendimento a clientes</li>
+<li>Suporte às equipes de gestão</li>
+<li>Produção de relatórios</li>
+</ul>
 
-Dessa forma, o domínio das ferramentas tecnológicas não é apenas um diferencial, mas uma competência essencial para o assistente administrativo no mercado de trabalho atual.`;
+<p>Para isso, é essencial que o profissional domine ferramentas digitais, especialmente editores de texto como o Microsoft Word.</p>
+
+<h2>Importância da Formatação Profissional</h2>
+
+<p>A produção de documentos bem estruturados, claros e padronizados contribui diretamente para a eficiência organizacional e para a qualidade da comunicação empresarial.</p>
+
+<p>Além disso, o uso adequado de recursos como formatação, alinhamento, listas e revisão textual permite que os documentos transmitam profissionalismo e credibilidade.</p>
+
+<p>Dessa forma, o domínio das ferramentas tecnológicas não é apenas um diferencial, mas uma competência essencial para o assistente administrativo no mercado de trabalho atual.</p>`;
 
 // =====================================================
 // DESAFIOS COM VALIDAÇÃO MELHORADA
 // =====================================================
+
+// =====================================================
+// UTILITÁRIOS
+// =====================================================
+
+function isBoldNode(el, editor) {
+  while (el && el !== editor && el !== document.body) {
+    const tag = (el.tagName || "").toUpperCase();
+    if (tag === "B" || tag === "STRONG") return true;
+
+    const computed = window.getComputedStyle(el);
+    const fw = computed.fontWeight;
+    if (fw === "bold" || fw === "bolder" || Number(fw) >= 600) {
+      return true;
+    }
+
+    el = el.parentElement;
+  }
+  return false;
+}
+
+function getFirstTwoRelevantBlocks(editor) {
+  const blocks = Array.from(editor.children).filter(child => child.innerText.trim().length > 0);
+  if (blocks.length >= 2) {
+    return blocks.slice(0, 2);
+  }
+
+  const fallback = Array.from(editor.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6')).filter(el => el.innerText.trim().length > 0);
+  if (fallback.length >= 2) {
+    return fallback.slice(0, 2);
+  }
+
+  return [];
+}
+
+function blockHasMajorityBoldText(block, editor) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null);
+  let total = 0;
+  let bold = 0;
+
+  while (walker.nextNode()) {
+    const txt = walker.currentNode.nodeValue.replace(/\s+/g, ' ').trim();
+    if (!txt) continue;
+    const length = txt.length;
+    total += length;
+    if (isBoldNode(walker.currentNode.parentElement, editor)) {
+      bold += length;
+    }
+  }
+
+  if (total === 0) return false;
+  return (bold / total) >= 0.5;
+}
+
+// =====================================================
+// VALIDAÇÕES
+// =====================================================
+
+function validarPrimeirosBlocosEmNegrito() {
+  const editor = document.getElementById("editor");
+  if (!editor) return false;
+
+  const blocks = getFirstTwoRelevantBlocks(editor);
+  if (blocks.length < 2) {
+    return false;
+  }
+
+  return blocks.every(block => blockHasMajorityBoldText(block, editor));
+}
 
 const desafios = [
   {
@@ -301,11 +385,11 @@ const desafios = [
 
   {
     id: 2,
-    texto: "2️⃣ Aplique NEGRITO no primeiro parágrafo",
-    dica: "Selecione apenas o primeiro parágrafo e clique em B.",
-    criterio: "Primeiro parágrafo em negrito",
-    validar: (t, h) => {
-      return h.toLowerCase().includes("<b>") || h.toLowerCase().includes("<strong>");
+    texto: "2️⃣ Aplique NEGRITO no título principal e no subtítulo",
+    dica: "Deixe negrito somente em 'Assistente Administrativo: Competências Essenciais' e 'Introdução ao Papel Profissional'.",
+    criterio: "Primeiros 2 blocos em negrito",
+    validar: () => {
+      return validarPrimeirosBlocosEmNegrito();
     },
     pontos: 10
   },
@@ -346,12 +430,12 @@ const desafios = [
 
   {
     id: 6,
-    texto: "6️⃣ Crie uma lista com os pontos principais",
-    dica: "Use o botão 'Lista' para criar uma lista com 5 itens.",
-    criterio: "Lista com marcadores (mín. 5 itens)",
+    texto: "6️⃣ Crie uma lista com os pontos principais (adicione mais itens)",
+    dica: "Use o botão 'Lista' para criar uma lista com pelo menos 7 itens no total.",
+    criterio: "Lista com marcadores (mín. 7 itens)",
     validar: (t, h) => {
       const liCount = (h.match(/<li>/gi) || []).length;
-      return liCount >= 5;
+      return liCount >= 7;
     },
     pontos: 15
   },
@@ -369,12 +453,12 @@ const desafios = [
 
   {
     id: 8,
-    texto: "8️⃣ Aplique negrito em todos os títulos (se houver)",
-    dica: "Identifique conjuntos principais e aplique negrito.",
+    texto: "8️⃣ Aplique negrito nos títulos existentes",
+    dica: "Identifique os títulos H1 e H2 e aplique negrito neles.",
     criterio: "Títulos em negrito",
     validar: (t, h) => {
       const bCount = (h.match(/<b>|<strong>/gi) || []).length;
-      return bCount >= 2;
+      return bCount >= 3; // Título principal + 2 subtítulos
     },
     pontos: 12
   },
@@ -411,16 +495,34 @@ function iniciar() {
   
   const textoBaseElement = document.getElementById("textoBase");
   if (textoBaseElement) {
-    textoBaseElement.innerText = textoBase;
+    textoBaseElement.innerHTML = textoBase;
   }
   
-  // Recuperar nome do aluno do localStorage
+  // Recuperar nome do aluno do localStorage (não reatribui placeholder falso)
   const nomeAlunoSalvo = localStorage.getItem("nomeAlunoWord");
-  if (nomeAlunoSalvo) {
+  if (nomeAlunoSalvo && nomeAlunoSalvo.trim() && nomeAlunoSalvo !== "Aluno não informado") {
     const inputNome = document.getElementById("nomeAluno");
     if (inputNome) {
       inputNome.value = nomeAlunoSalvo;
     }
+  }
+
+  const inputNome = document.getElementById("nomeAluno");
+  if (inputNome) {
+    inputNome.addEventListener("input", () => {
+      const valor = inputNome.value.trim();
+      if (valor) {
+        localStorage.setItem("nomeAlunoWord", valor);
+      } else {
+        localStorage.removeItem("nomeAlunoWord");
+      }
+    });
+  }
+  
+  // Adicionar atalhos de teclado ao editor
+  const editor = document.getElementById("editor");
+  if (editor) {
+    editor.addEventListener("keydown", handleKeyboardShortcuts);
   }
   
   renderAchievements();
@@ -599,12 +701,20 @@ function finalizar() {
         </div>
       </div>
 
-      <button onclick="location.reload()" 
-              style="background: white; color: #0066cc; border: none; padding: 15px 40px; 
-                     font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
-                     box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
-        🔄 Jogar Novamente
-      </button>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <button onclick="exportarRelatorioPDF()" 
+                style="background: #ff9800; color: white; border: none; padding: 15px 30px; 
+                       font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+                       box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
+          📄 Exportar Relatório
+        </button>
+        <button onclick="location.reload()" 
+                style="background: white; color: #0066cc; border: none; padding: 15px 30px; 
+                       font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
+                       box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
+          🔄 Jogar Novamente
+        </button>
+      </div>
     </div>
   `;
 }
@@ -625,6 +735,7 @@ function registrarTentativa(resultado, pontosGanhados) {
   const entrada = {
     tentativa: historico.length + 1,
     etapa: etapa + 1,
+    conclusao: etapa + 1,
     resultado: resultado,
     pontos: score,
     pontosGanhados: pontosGanhados,
@@ -689,14 +800,19 @@ function mostrarHistorico() {
 // =====================================================
 
 function exportarRelatorioPDF() {
-  // Ler nome do aluno do input
-  let nomeAluno = document.getElementById("nomeAluno")?.value || "";
-  if (!nomeAluno || nomeAluno.trim() === "") {
+  // Ler nome do aluno do input ou localStorage para permitir fluxo após tela final
+  const inputNome = document.getElementById("nomeAluno")?.value || "";
+  let nomeAluno = inputNome.trim();
+
+  if (!nomeAluno) {
+    nomeAluno = (localStorage.getItem("nomeAlunoWord") || "").trim();
+  }
+
+  if (nomeAluno) {
+    localStorage.setItem("nomeAlunoWord", nomeAluno);
+  } else {
     nomeAluno = "Aluno não informado";
   }
-  
-  // Salvar no localStorage para persistência
-  localStorage.setItem("nomeAlunoWord", nomeAluno);
 
   // Conteúdo atual + localStorage (backup)
   const historicoAtual = JSON.parse(localStorage.getItem("historicoWord")) || historico;
@@ -1001,6 +1117,45 @@ function justifyText() {
   const editor = document.getElementById("editor");
   if (editor) {
     editor.style.textAlign = "justify";
+  }
+}
+
+// =====================================================
+// ATALHOS DE TECLADO
+// =====================================================
+
+function handleKeyboardShortcuts(event) {
+  if (!event.ctrlKey) return;
+  
+  switch (event.key.toLowerCase()) {
+    case 'b':
+      event.preventDefault();
+      format('bold');
+      break;
+    case 'i':
+      event.preventDefault();
+      format('italic');
+      break;
+    case 'u':
+      event.preventDefault();
+      format('underline');
+      break;
+    case 'j':
+      event.preventDefault();
+      justifyText();
+      break;
+    case 'l':
+      event.preventDefault();
+      alignText('left');
+      break;
+    case 'e':
+      event.preventDefault();
+      alignText('center');
+      break;
+    case 'r':
+      event.preventDefault();
+      alignText('right');
+      break;
   }
 }
 
