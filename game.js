@@ -2,6 +2,7 @@
 // VARIÁVEIS GLOBAIS
 // =====================================================
 
+let faseAtual = Number(localStorage.getItem("faseAtual")) || 1;
 let etapa = 0;
 let score = 0;
 let tempoTotal = 0;
@@ -12,35 +13,7 @@ let teveFalha = false;
 
 let historico = JSON.parse(localStorage.getItem("historicoWord")) || [];
 let achievements = JSON.parse(localStorage.getItem("achievementsWord")) || {};
-let faseAtual = Number(localStorage.getItem("faseAtual")) || 1;
-let desafios = [];
-
-const desafiosFase1 = []; // será preenchido mais abaixo
-const desafiosFase2 = [
-  {
-    id: 1,
-    texto: "1️⃣ Fase 2 (placeholder): Preparar documento avançado",
-    dica: "Esta fase está em construção. Valide para avançar.",
-    criterio: "Fase 2 estruturada",
-    validar: () => true,
-    pontos: 0
-  }
-];
-
-const textoBaseFase2 = `<h1>Fase 2: Word Avançado - Revisão Profissional</h1>
-
-<h2>Preparando documentos com qualidade</h2>
-
-<p>Na Fase 2, o foco é aprimorar o controle de estilização, revisão e estruturação de documentos profissionais.</p>
-
-<p>Seus principais objetivos nesta fase:</p>
-<ul>
-<li>Aprimorar a consistência de formatação</li>
-<li>Aplicar títulos de seção e subtítulos com hierarquia</li>
-<li>Criar listas, tabelas e referências cruzadas</li>
-</ul>
-
-<p>Esses conceitos ajudam a produzir documentos mais claros, fáceis de seguir e visualmente consistentes.</p>`;
+let desafiosAtuais = [];
 
 // =====================================================
 // SISTEMA DE ACHIEVEMENTS
@@ -57,7 +30,7 @@ const achievementsData = {
     name: "Velocista",
     icon: "⚡",
     description: "Complete em menos de 5 minutos",
-    condition: (score, etapa, tempo) => etapa >= desafios.length && tempo < 300
+    condition: (score, etapa, tempo) => etapa >= desafiosAtuais.length && tempo < 300
   },
   "perfect_score": {
     name: "Perfeição",
@@ -75,7 +48,7 @@ const achievementsData = {
     name: "Explorador",
     icon: "🔍",
     description: "Conclua todos os 10 desafios",
-    condition: (score, etapa) => etapa >= desafios.length
+    condition: (score, etapa) => etapa >= desafiosAtuais.length
   },
   "comeback": {
     name: "Volta por Cima",
@@ -301,7 +274,7 @@ styleAnimation.textContent = `
 `;
 document.head.appendChild(styleAnimation);
 
-const textoBase = `<h1>Assistente Administrativo: Competências Essenciais</h1>
+const textoBaseFase1 = `<h1>Assistente Administrativo: Competências Essenciais</h1>
 
 <h2>Introdução ao Papel Profissional</h2>
 
@@ -325,6 +298,16 @@ const textoBase = `<h1>Assistente Administrativo: Competências Essenciais</h1>
 <p>Além disso, o uso adequado de recursos como formatação, alinhamento, listas e revisão textual permite que os documentos transmitam profissionalismo e credibilidade.</p>
 
 <p>Dessa forma, o domínio das ferramentas tecnológicas não é apenas um diferencial, mas uma competência essencial para o assistente administrativo no mercado de trabalho atual.</p>`;
+
+const textoBaseFase2 = `<h1>Fase 2: Domínio Avançado do Word</h1>
+
+<h2>Produtividade com Estilos e Sumário</h2>
+
+<p>Nesta fase, focaremos em navegação e formatação avançada: estilos de parágrafo, sumário automático e revisão de documentos.</p>
+
+<p>Concentre-se em consistência visual e precisão de formatação profissional.</p>`;
+
+let textoBase = textoBaseFase1;
 
 // =====================================================
 // DESAFIOS COM VALIDAÇÃO MELHORADA
@@ -399,7 +382,7 @@ function validarPrimeirosBlocosEmNegrito() {
   return blocks.every(block => blockHasMajorityBoldText(block, editor));
 }
 
-const desafios = [
+const desafiosFase1 = [
   {
     id: 1,
     texto: "1️⃣ Digite o texto completo no editor",
@@ -515,18 +498,48 @@ const desafios = [
   }
 ];
 
+const desafiosFase2 = [
+  // Desafios da Fase 2 serão definidos posteriormente (esqueleto)
+];
+
+desafiosAtuais = desafiosFase1;
+
+function carregarFase(fase) {
+  faseAtual = fase;
+  etapa = 0;
+  score = 0;
+  tempoTotal = 0;
+  clearInterval(timer);
+
+  if (faseAtual === 1) {
+    desafiosAtuais = desafiosFase1;
+    textoBase = textoBaseFase1;
+  } else {
+    desafiosAtuais = desafiosFase2;
+    textoBase = textoBaseFase2;
+  }
+
+  localStorage.setItem("faseAtual", String(faseAtual));
+
+  const textoBaseElement = document.getElementById("textoBase");
+  if (textoBaseElement) {
+    textoBaseElement.innerHTML = textoBase;
+  }
+
+  atualizar();
+  renderAchievements();
+  mostrarHistorico();
+  renderProgressChart();
+}
+
 // =====================================================
 // INICIALIZAÇÃO
 // =====================================================
 
 function iniciar() {
   initTheme();
-  
-  const textoBaseElement = document.getElementById("textoBase");
-  if (textoBaseElement) {
-    textoBaseElement.innerHTML = textoBase;
-  }
-  
+  carregarFase(faseAtual);
+
   // Recuperar nome do aluno do localStorage (não reatribui placeholder falso)
   const nomeAlunoSalvo = localStorage.getItem("nomeAlunoWord");
   if (nomeAlunoSalvo && nomeAlunoSalvo.trim() && nomeAlunoSalvo !== "Aluno não informado") {
@@ -581,7 +594,7 @@ function iniciarTempo() {
 // =====================================================
 
 function atualizar() {
-  const d = desafios[etapa];
+  const d = desafiosAtuais[etapa];
 
   const missaoElement = document.getElementById("missao");
   if (missaoElement) {
@@ -600,13 +613,13 @@ function atualizar() {
 
   const nivelElement = document.getElementById("nivel");
   if (nivelElement) {
-    nivelElement.innerText = `${etapa + 1}/${desafios.length}`;
+    nivelElement.innerText = `${etapa + 1}/${desafiosAtuais.length}`;
   }
 
   // Atualizar barra de progresso
   const progressFill = document.getElementById("progressBar");
   if (progressFill) {
-    const porcentagem = ((etapa) / desafios.length) * 100;
+    const porcentagem = ((etapa) / desafiosAtuais.length) * 100;
     progressFill.style.width = porcentagem + "%";
   }
 
@@ -631,7 +644,7 @@ function validar() {
   const textoAtual = editor.innerText;
   const htmlAtual = editor.innerHTML;
 
-  const d = desafios[etapa];
+  const d = desafiosAtuais[etapa];
   const feedbackElement = document.getElementById("feedback");
 
   if (!feedbackElement) return;
@@ -652,7 +665,7 @@ function validar() {
     etapa++;
     permitirProximoDesafio = true;
 
-    if (etapa >= desafios.length) {
+    if (etapa >= desafiosAtuais.length) {
       clearInterval(timer);
       setTimeout(finalizar, 1500);
     } else {
@@ -697,8 +710,16 @@ function finalizar() {
 
   const pontosFinal = score;
   const tempoFinal = tempoTotal;
-  const percentualConclusao = Math.round((100 * etapa) / desafios.length);
+  const percentualConclusao = desafiosAtuais.length ? Math.round((100 * etapa) / desafiosAtuais.length) : 0;
   const desempenho = obterDesempenho(pontosFinal);
+  const botaoFase2 = faseAtual === 1 ? `
+        <button onclick="carregarFase(2)" 
+                style="background: #4caf50; color: white; border: none; padding: 15px 30px; 
+                       font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; 
+                       box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
+          🚀 Iniciar Fase 2
+        </button>
+      ` : '';
 
   document.body.innerHTML = `
     <div style="background: linear-gradient(135deg, #0066cc 0%, #00a3ff 100%); 
@@ -737,6 +758,7 @@ function finalizar() {
                        box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
           📄 Exportar Relatório
         </button>
+        ${botaoFase2}
         <button onclick="location.reload()" 
                 style="background: white; color: #0066cc; border: none; padding: 15px 30px; 
                        font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;
@@ -852,10 +874,11 @@ function exportarRelatorioPDF() {
     data: new Date().toLocaleString("pt-BR"),
     pontosFinal: score,
     tempoTotal: tempoTotal,
+    faseAtual: faseAtual,
     desafiosCompletados: etapa,
-    totalDesafios: desafios.length,
-    percentualConclusao: Math.round((100 * etapa) / desafios.length),
-    progresso: `${etapa}/${desafios.length}`,
+    totalDesafios: desafiosAtuais.length,
+    percentualConclusao: desafiosAtuais.length ? Math.round((100 * etapa) / desafiosAtuais.length) : 0,
+    progresso: `${etapa}/${desafiosAtuais.length}`,
     desempenho: obterDesempenho(score),
     texto: document.getElementById("editor")?.innerText || "N/A",
     historico: historicoAtual,
@@ -1103,13 +1126,13 @@ function exportarDados() {
       etapa: etapa,
       score: score,
       tempoTotal: tempoTotal,
-      desafioAtual: desafios[etapa]?.texto || "N/A",
-      progresso: `${etapa}/${desafios.length}`
+      desafioAtual: desafiosAtuais[etapa]?.texto || "N/A",
+      progresso: `${etapa}/${desafiosAtuais.length}`
     },
     historico: localHistorico.length ? localHistorico : historico,
     achievements: localAchievements && Object.keys(localAchievements).length ? localAchievements : achievements,
     configuracao: {
-      desafiosTotais: desafios.length,
+      desafiosTotais: desafiosAtuais.length,
       permitirProximoDesafio: permitirProximoDesafio,
       modoEscuro: document.body.classList.contains("dark-mode")
     }
