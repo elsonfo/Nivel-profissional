@@ -499,10 +499,15 @@ const desafiosFase1 = [
 ];
 
 const desafiosFase2 = [
-  // Desafios da Fase 2 serão definidos posteriormente (esqueleto)
+  {
+    id: 1,
+    texto: "🚀 Fase 2: Bem-vindo ao Avançado!",
+    dica: "Esta é uma fase em construção. Clique em Validar para continuar explorando.",
+    criterio: "Fase 2 iniciada",
+    validar: () => true,
+    pontos: 5
+  }
 ];
-
-desafiosAtuais = desafiosFase1;
 
 function carregarFase(fase) {
   faseAtual = fase;
@@ -595,6 +600,12 @@ function iniciarTempo() {
 
 function atualizar() {
   const d = desafiosAtuais[etapa];
+
+  if (!d) {
+    console.error(`Desafio ${etapa + 1} não encontrado na fase ${faseAtual}. Resetando para fase 1.`);
+    carregarFase(1);
+    return;
+  }
 
   const missaoElement = document.getElementById("missao");
   if (missaoElement) {
