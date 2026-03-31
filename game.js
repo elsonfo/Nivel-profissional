@@ -12,6 +12,35 @@ let teveFalha = false;
 
 let historico = JSON.parse(localStorage.getItem("historicoWord")) || [];
 let achievements = JSON.parse(localStorage.getItem("achievementsWord")) || {};
+let faseAtual = Number(localStorage.getItem("faseAtual")) || 1;
+let desafios = [];
+
+const desafiosFase1 = []; // será preenchido mais abaixo
+const desafiosFase2 = [
+  {
+    id: 1,
+    texto: "1️⃣ Fase 2 (placeholder): Preparar documento avançado",
+    dica: "Esta fase está em construção. Valide para avançar.",
+    criterio: "Fase 2 estruturada",
+    validar: () => true,
+    pontos: 0
+  }
+];
+
+const textoBaseFase2 = `<h1>Fase 2: Word Avançado - Revisão Profissional</h1>
+
+<h2>Preparando documentos com qualidade</h2>
+
+<p>Na Fase 2, o foco é aprimorar o controle de estilização, revisão e estruturação de documentos profissionais.</p>
+
+<p>Seus principais objetivos nesta fase:</p>
+<ul>
+<li>Aprimorar a consistência de formatação</li>
+<li>Aplicar títulos de seção e subtítulos com hierarquia</li>
+<li>Criar listas, tabelas e referências cruzadas</li>
+</ul>
+
+<p>Esses conceitos ajudam a produzir documentos mais claros, fáceis de seguir e visualmente consistentes.</p>`;
 
 // =====================================================
 // SISTEMA DE ACHIEVEMENTS
