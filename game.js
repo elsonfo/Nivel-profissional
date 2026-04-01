@@ -893,9 +893,13 @@ function atualizarScore() {
 
 function iniciarFase2() {
   // A partir da tela final da Fase 1, força carregamento da Fase 2 após recarregar
+  console.log("iniciarFase2 chamado");
   sessionStorage.setItem("forcarFase2", "1");
   location.reload();
 }
+
+// Garantir acessibilidade global para o botão em finalização
+window.iniciarFase2 = iniciarFase2;
 
 // =====================================================
 // FINALIZAÇÃO
@@ -913,7 +917,7 @@ function finalizar() {
   const percentualConclusao = desafiosAtuais.length ? Math.round((100 * etapa) / desafiosAtuais.length) : 0;
   const desempenho = obterDesempenho(pontosFinal);
   const botaoFase2 = faseAtual === 1 ? `
-        <button onclick="iniciarFase2()" 
+        <button id="btnIniciarFase2" 
                 style="background: #4caf50; color: white; border: none; padding: 15px 30px; 
                        font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; 
                        box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
@@ -971,6 +975,12 @@ function finalizar() {
       </div>
     </div>
   `;
+
+  // Garantir que o botão funcione mesmo após a substituição do body
+  const btnFase2 = document.getElementById("btnIniciarFase2");
+  if (btnFase2) {
+    btnFase2.addEventListener("click", iniciarFase2);
+  }
 }
 
 // =====================================================
