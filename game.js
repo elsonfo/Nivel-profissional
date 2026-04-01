@@ -2,7 +2,7 @@
 // VARIÁVEIS GLOBAIS
 // =====================================================
 
-let faseAtual = Number(localStorage.getItem("faseAtual")) || 1;
+let faseAtual = 1; // Sempre iniciar na Fase 1
 let etapa = 0;
 let score = 0;
 let tempoTotal = 0;
@@ -672,12 +672,13 @@ const desafiosFase2 = [
     dica: "Verifique todos os itens, clique em Validar e finalize a fase.",
     criterio: "Documento pronto, com tela final da Fase 2 e relatório liberado",
     validar: (t, h) => {
-      const fullCheck = validarTextoBaseFase2(t, h) &&
-        hasUnderlinePhrase(h.toLowerCase(), "comunicação empresarial") &&
-        (h.match(/<li>/gi) || []).length >= 5 &&
-        (/text-align\s*:\s*justify/.test(h.toLowerCase()) || document.getElementById("editor").style.textAlign === "justify") &&
-        (/documentos bem estruturados/i.test(t) || /documentos bem estruturados/i.test(h));
-      return fullCheck;
+      // Validação simplificada: apenas verificar se o texto-base está presente e tem formatação básica
+      const hasText = validarTextoBaseFase2(t, h);
+      const hasBold = /<b>|<strong>/i.test(h);
+      const hasItalic = /<i>|<em>/i.test(h);
+      const hasUnderline = /<u>|<ins>/i.test(h);
+      const hasList = /<li>/i.test(h);
+      return hasText && (hasBold || hasItalic || hasUnderline || hasList);
     },
     pontos: 20
   }
