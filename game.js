@@ -299,13 +299,22 @@ const textoBaseFase1 = `<h1>Assistente Administrativo: Competências Essenciais<
 
 <p>Dessa forma, o domínio das ferramentas tecnológicas não é apenas um diferencial, mas uma competência essencial para o assistente administrativo no mercado de trabalho atual.</p>`;
 
-const textoBaseFase2 = `<h1>Fase 2: Domínio Avançado do Word</h1>
+const textoBaseFase2 = `<h1>Planejamento e Comunicação Administrativa</h1>
 
-<h2>Produtividade com Estilos e Sumário</h2>
+<h2>Organização visual de documentos corporativos</h2>
 
-<p>Nesta fase, focaremos em navegação e formatação avançada: estilos de parágrafo, sumário automático e revisão de documentos.</p>
+<p>A comunicação escrita é uma competência essencial no ambiente administrativo. Documentos bem estruturados facilitam a compreensão das informações, reduzem falhas de interpretação e fortalecem a imagem profissional da organização.</p>
 
-<p>Concentre-se em consistência visual e precisão de formatação profissional.</p>`;
+<p>Para isso, o assistente administrativo deve dominar recursos de edição e formatação de texto, tornando relatórios, memorandos e comunicados mais claros, objetivos e visualmente organizados.</p>
+
+<p>Entre as boas práticas na elaboração de documentos, destacam-se:
+padronização da fonte;
+uso adequado de títulos e subtítulos;
+alinhamento correto do texto;
+destaque de informações importantes;
+organização de listas e tópicos.</p>
+
+<p>Assim, o domínio do editor de texto contribui para a eficiência dos processos internos e para a qualidade da comunicação empresarial.</p>`;
 
 let textoBase = textoBaseFase1;
 
@@ -364,6 +373,51 @@ function blockHasMajorityBoldText(block, editor) {
 
   if (total === 0) return false;
   return (bold / total) >= 0.5;
+}
+
+function isItalicNode(el, editor) {
+  while (el && el !== editor && el !== document.body) {
+    const tag = (el.tagName || "").toUpperCase();
+    if (tag === "I" || tag === "EM") return true;
+
+    const computed = window.getComputedStyle(el);
+    const fontStyle = computed.fontStyle;
+    if (fontStyle === "italic" || fontStyle === "oblique") {
+      return true;
+    }
+
+    el = el.parentElement;
+  }
+  return false;
+}
+
+function hasItalicInBlock(block, editor) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null);
+  while (walker.nextNode()) {
+    if (walker.currentNode.nodeValue.trim().length === 0) continue;
+    if (isItalicNode(walker.currentNode.parentElement, editor)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasUnderlinePhrase(html, phrase) {
+  const regex = new RegExp(`<u>\\s*${phrase}\\s*<\\/u>`, "i");
+  return regex.test(html.replace(/\s+/g, " ")) || html.toLowerCase().includes(`<u>${phrase.toLowerCase()}</u>`);
+}
+
+function validarTextoBaseFase2(texto, html) {
+  const requiredPhrases = [
+    "planejamento e comunicação administrativa",
+    "organização visual de documentos corporativos",
+    "a comunicação escrita é uma competência essencial no ambiente administrativo",
+    "entre as boas práticas na elaboração de documentos, destacam-se",
+    "documentos bem estruturados"
+  ];
+  const lower = texto.toLowerCase();
+  if (texto.trim().length < 320) return false;
+  return requiredPhrases.every((frase) => lower.includes(frase));
 }
 
 // =====================================================
@@ -501,11 +555,131 @@ const desafiosFase1 = [
 const desafiosFase2 = [
   {
     id: 1,
-    texto: "🚀 Fase 2: Bem-vindo ao Avançado!",
-    dica: "Esta é uma fase em construção. Clique em Validar para continuar explorando.",
-    criterio: "Fase 2 iniciada",
-    validar: () => true,
-    pontos: 5
+    texto: "1️⃣ Digite o texto-base completo da Fase 2 no editor",
+    dica: "Cole ou digite o texto-base conforme instruções, mantendo título, subtítulo e corpo.",
+    criterio: "Texto com tamanho mínimo e conteúdo principal presente",
+    validar: (t, h) => validarTextoBaseFase2(t, h),
+    pontos: 12
+  },
+  {
+    id: 2,
+    texto: "2️⃣ Aplique negrito no título principal",
+    dica: "Selecione o título e use o botão B para aplicar negrito.",
+    criterio: "Primeiro bloco/título em negrito",
+    validar: () => {
+      const editor = document.getElementById("editor");
+      const primeiro = getFirstTwoRelevantBlocks(editor)[0];
+      return primeiro ? blockHasMajorityBoldText(primeiro, editor) : false;
+    },
+    pontos: 10
+  },
+  {
+    id: 3,
+    texto: "3️⃣ Aplique itálico no subtítulo",
+    dica: "Selecione o subtítulo e use o botão I.",
+    criterio: "Segundo bloco/subtítulo em itálico",
+    validar: () => {
+      const editor = document.getElementById("editor");
+      const segundo = getFirstTwoRelevantBlocks(editor)[1];
+      return segundo ? hasItalicInBlock(segundo, editor) : false;
+    },
+    pontos: 10
+  },
+  {
+    id: 4,
+    texto: "4️⃣ Sublinhado na expressão 'comunicação empresarial'",
+    dica: "Selecione essa frase e use o botão U.",
+    criterio: "Expressão específica sublinhada",
+    validar: (t, h) => {
+      return hasUnderlinePhrase(h.toLowerCase(), "comunicação empresarial");
+    },
+    pontos: 10
+  },
+  {
+    id: 5,
+    texto: "5️⃣ Transforme o trecho de boas práticas em lista com marcadores",
+    dica: "Crie pelo menos 5 itens usando o botão de lista.",
+    criterio: "Lista com pelo menos 5 itens",
+    validar: (t, h) => {
+      const liCount = (h.match(/<li>/gi) || []).length;
+      return liCount >= 5 && t.toLowerCase().includes("entre as boas práticas na elaboração de documentos");
+    },
+    pontos: 12
+  },
+  {
+    id: 6,
+    texto: "6️⃣ Centralize o título principal",
+    dica: "Selecione o título e clique em Cent.",
+    criterio: "Primeiro bloco centralizado",
+    validar: () => {
+      const editor = document.getElementById("editor");
+      const primeiro = getFirstTwoRelevantBlocks(editor)[0];
+      if (!primeiro) return false;
+      const aligned = window.getComputedStyle(primeiro).textAlign;
+      return aligned === "center" || primeiro.getAttribute("align") === "center";
+    },
+    pontos: 10
+  },
+  {
+    id: 7,
+    texto: "7️⃣ Justifique os parágrafos do texto",
+    dica: "Selecione tudo e clique em Just.",
+    criterio: "Corpo do texto justificado",
+    validar: () => {
+      const editor = document.getElementById("editor");
+      const html = editor.innerHTML.toLowerCase();
+      const editorAligned = editor.style.textAlign === "justify";
+      const hasJustifyStyle = /text-align\s*:\s*justify/.test(html);
+      return editorAligned || hasJustifyStyle;
+    },
+    pontos: 10
+  },
+  {
+    id: 8,
+    texto: "8️⃣ Destaque em negrito a expressão 'documentos bem estruturados'",
+    dica: "Selecione a expressão no parágrafo e aplique negrito.",
+    criterio: "Expressão específica em negrito",
+    validar: (t, h) => {
+      return /<b>[^<]*documentos bem estruturados[^<]*<\/b>/i.test(h) || /<strong>[^<]*documentos bem estruturados[^<]*<\/strong>/i.test(h);
+    },
+    pontos: 10
+  },
+  {
+    id: 9,
+    texto: "9️⃣ Organize o documento com aparência profissional",
+    dica: "Confirme organização mínima: título/subtítulo, lista, alinhamento e destaques.",
+    criterio: "Validação combinada de estrutura mínima e formatação aplicada",
+    validar: (t, h) => {
+      const conditions = [];
+      conditions.push(validarTextoBaseFase2(t, h));
+      conditions.push(hasUnderlinePhrase(h.toLowerCase(), "comunicação empresarial"));
+      conditions.push(/<li>/gi.test(h) && (h.match(/<li>/gi) || []).length >= 5);
+      conditions.push(/<b>|<strong>/i.test(h) && /documentos bem estruturados/i.test(h));
+      const primeiro = getFirstTwoRelevantBlocks(document.getElementById('editor'))[0];
+      if (primeiro) {
+        const align = window.getComputedStyle(primeiro).textAlign;
+        conditions.push(align === "center" || primeiro.getAttribute("align") === "center");
+      }
+      const htmlJustify = /text-align\s*:\s*justify/.test(h.toLowerCase()) || document.getElementById("editor").style.textAlign === "justify";
+      conditions.push(htmlJustify);
+      return conditions.filter(Boolean).length >= 5;
+    },
+    pontos: 12
+  },
+  {
+    id: 10,
+    texto: "🔟 Finalize a Fase 2",
+    dica: "Verifique todos os itens, clique em Validar e finalize a fase.",
+    criterio: "Documento pronto, com tela final da Fase 2 e relatório liberado",
+    validar: (t, h) => {
+      const fullCheck = validarTextoBaseFase2(t, h) &&
+        hasUnderlinePhrase(h.toLowerCase(), "comunicação empresarial") &&
+        (h.match(/<li>/gi) || []).length >= 5 &&
+        (/text-align\s*:\s*justify/.test(h.toLowerCase()) || document.getElementById("editor").style.textAlign === "justify") &&
+        (/documentos bem estruturados/i.test(t) || /documentos bem estruturados/i.test(h));
+      return fullCheck;
+    },
+    pontos: 20
   }
 ];
 
@@ -732,12 +906,15 @@ function finalizar() {
         </button>
       ` : '';
 
+  const tituloFinal = faseAtual === 2 ? "🏁 Fase 2 Concluída!" : "🏁 Missão Finalizada!";
+  const subtituloFinal = faseAtual === 2 ? "Parabéns! Você dominou a formatação e a produção de documentos profissionais." : "Você completou o desafio com êxito";
+
   document.body.innerHTML = `
     <div style="background: linear-gradient(135deg, #0066cc 0%, #00a3ff 100%); 
                 color: white; padding: 40px 20px; text-align: center; min-height: 100vh; 
                 display: flex; flex-direction: column; justify-content: center; align-items: center;">
-      <h1 style="font-size: 48px; margin-bottom: 10px;">🏁 Missão Finalizada!</h1>
-      <p style="font-size: 18px; margin-bottom: 40px; opacity: 0.9;">Você completou o desafio com êxito</p>
+      <h1 style="font-size: 48px; margin-bottom: 10px;">${tituloFinal}</h1>
+      <p style="font-size: 18px; margin-bottom: 40px; opacity: 0.9;">${subtituloFinal}</p>
 
       <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 30px; 
                   margin-bottom: 30px; max-width: 500px;">
