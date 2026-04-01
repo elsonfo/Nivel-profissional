@@ -718,6 +718,14 @@ function carregarFase(fase) {
 
 function iniciar() {
   initTheme();
+
+  // Sempre iniciar na Fase 1 por padrão (protege contra recarga na Fase 2)
+  faseAtual = 1;
+  if (sessionStorage.getItem("forcarFase2") === "1") {
+    faseAtual = 2;
+    sessionStorage.removeItem("forcarFase2");
+  }
+
   carregarFase(faseAtual);
 
   // Recuperar nome do aluno do localStorage (não reatribui placeholder falso)
@@ -883,6 +891,12 @@ function atualizarScore() {
   }
 }
 
+function iniciarFase2() {
+  // A partir da tela final da Fase 1, força carregamento da Fase 2 após recarregar
+  sessionStorage.setItem("forcarFase2", "1");
+  location.reload();
+}
+
 // =====================================================
 // FINALIZAÇÃO
 // =====================================================
@@ -899,7 +913,7 @@ function finalizar() {
   const percentualConclusao = desafiosAtuais.length ? Math.round((100 * etapa) / desafiosAtuais.length) : 0;
   const desempenho = obterDesempenho(pontosFinal);
   const botaoFase2 = faseAtual === 1 ? `
-        <button onclick="carregarFase(2)" 
+        <button onclick="iniciarFase2()" 
                 style="background: #4caf50; color: white; border: none; padding: 15px 30px; 
                        font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; 
                        box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s;">
